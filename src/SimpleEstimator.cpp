@@ -8,12 +8,9 @@
 #include <map>
 #include <cmath>
 
-std::map<uint32_t , cardStat> first;
-
-int factorial(int n)
-{
-    return (n == 1 || n == 0) ? 1 : factorial(n - 1) * n;
-}
+std::map<uint32_t , cardStat> est_result;
+int n = 0;
+int noItems = 1000;
 
 SimpleEstimator::SimpleEstimator(std::shared_ptr<SimpleGraph> &g){
 
@@ -25,80 +22,46 @@ void SimpleEstimator::prepare() {
 
     // do your prep here
 
-    for(int noLabels = 0; noLabels < graph -> getNoLabels(); noLabels++) {
-        cardStat test {0,0,0};
-        first[noLabels] = test;
+    int edgesPerLabel [graph->getNoLabels()];
+    //int inDegreePerLabel [graph->getNoLabels()];
+    //int outDegreePerLabel [graph->getNoLabels()];
+    //std::list<uint32_t > uniqueLabels;
+
+    int randomIndices [graph->getNoVertices() - noItems];
+
+    for(int noLabels = 0; noLabels < graph->getNoLabels(); noLabels++) {
+        est_result[noLabels] = cardStat {0, 0, 0};
+        edgesPerLabel[noLabels] = 0;
     }
 
-    int n = graph->getNoVertices();
-    int outDegrees [n];
-    int inDegrees [n];
+    std::cout << std::endl << graph->adj.size() << std::endl;
+    std::cout << std::endl << graph->getNoVertices() << "; " << graph->getNoEdges() << "; " << graph->getNoLabels() << "; " << graph->getNoDistinctEdges() << std::endl;
 
-    for (int j = 0; j < n; j++) {
-        outDegrees[j] = 0;
-        inDegrees[j] = 0;
-    }
+    for (int i = 0; i < graph->getNoVertices() - noItems; i++) {
+        randomIndices[i] = rand() % graph->getNoVertices();
+        std::cout << randomIndices[i] << "; ";
 
-    int maxDegree = 0;
-    int vertexWithMaxDegree = -1;
+        graph->adj[randomIndices[i]].clear();
+        graph->reverse_adj[randomIndices[i]].clear();
 
-    int sources = 0;
-    int targets = 0;
-    int m = graph->getNoEdges();
-    int z = 0;
-    int z2 = 0;
-    int l = 5;
-
-    for(int source = 0; source < graph->getNoVertices(); source++) {
-        for (auto labelSource : graph->reverse_adj[source]) {
-            outDegrees[labelSource.second - 1]++;
-            sources++;
-        }
-
-        for (auto labelTarget : graph->adj[source]) {
-            inDegrees[labelTarget.second - 1]++;
-            targets++;
+        for (auto labelSource : graph->adj[i]) {
+            edgesPerLabel[labelSource.first]++;
         }
     }
 
-    for (int k = 0; k < n; k++) {
-        if (outDegrees[k] > maxDegree) {
-            maxDegree = outDegrees[k];
-            vertexWithMaxDegree = k + 1;
+    std::cout << std::endl << graph->adj.size() << std::endl;
+    std::cout << std::endl << graph->getNoVertices() << "; " << graph->getNoEdges() << "; " << graph->getNoLabels() << "; " << graph->getNoDistinctEdges() << std::endl;
+
+    /*for (int source = 0; source < graph->getNoVertices(); source++) {
+        for (auto labelSource : graph->adj[source]) {
+            edgesPerLabel[labelSource.first]++;
         }
-        if (outDegrees[k] == 0) {
-            z++;
+
+        for (auto labelTarget : graph->reverse_adj[source]) {
         }
-        if (inDegrees[k] == 0) {
-            z2++;
-        }
-    }
+    }*/
 
-    int x = maxDegree;
-
-    std::cout << "Vertex " << vertexWithMaxDegree << " has the highest outdegree: " << maxDegree << std::endl;
-
-
-    float pZero = 0;
-    for (int j = 1; j<l+1;j++){
-        pZero += ((factorial(l)/(factorial(j)*factorial(l-j))) * pow(z/n,j) * pow((n-z)/n,l-j));
-    }
-
-    float pDupl = 0;
-    for (int k = 2; k<l+1;k++){
-        pDupl += ((factorial(l)/(factorial(k)*factorial(l-k))) * pow(x/n,k) * pow((n-x)/n,l-k));
-    }
-
-    float result = 0;
-
-    for (int i = 1; i < l+1; i++){
-        result += ((l+1) * pow((m/n + (x - m/n)),i) * (1-pZero) * (1-pDupl));
-    }
-
-    int cardinalityEstimate = (int)((sources - z) * (targets - z2) * result);
-
-    std::cout << "Result: " << result << std::endl;
-    std::cout << "Cardinality estimate: " << cardinalityEstimate << std::endl;
+    //std::cout << std::endl << edgesPerLabel[0] << "; " << edgesPerLabel[1] << "; " << edgesPerLabel[2] << "; " << edgesPerLabel[3] << std::endl;
 
 }
 
