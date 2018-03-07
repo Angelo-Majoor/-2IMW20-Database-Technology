@@ -32,7 +32,7 @@ void SimpleEstimator::prepare() {
         //inDegreePerLabel[noLabels] = 0;
         //outDegreePerLabel[noLabels] = 0;
 
-        for (int source = 0; source < graph->getNoVertices(); source++) {
+        /*for (int source = 0; source < graph->getNoVertices(); source++) {
             for (auto labelSource : graph->adj[source]) {
 
                 bool found = (std::find(uniqueNodesForLabel.begin(), uniqueNodesForLabel.end(), labelSource.second) !=
@@ -60,7 +60,7 @@ void SimpleEstimator::prepare() {
             }
         }
 
-        uniqueNodesForLabel.clear();
+        uniqueNodesForLabel.clear();*/
 
     }
 
@@ -71,15 +71,11 @@ void SimpleEstimator::prepare() {
         }
     }
 
-    //std::cout << std::endl << "Number of edges: " << graph->getNoEdges();
-    //std::cout << std::endl << "Edges per label: " << edgesPerLabel[0] << "; " << edgesPerLabel[1] << "; " << edgesPerLabel[2] << "; " << edgesPerLabel[3];
-    //std::cout << std::endl << "Unique start (outgoing) nodes per label: " << outDegreePerLabel[0] << "; " << outDegreePerLabel[1] << "; " << outDegreePerLabel[2] << "; " << outDegreePerLabel[3] << "; ";
-    //std::cout << std::endl << "Unique end (incoming) nodes per label: " << inDegreePerLabel[0] << "; " << inDegreePerLabel[1] << "; " << inDegreePerLabel[2] << "; " << inDegreePerLabel[3] << "; " << std::endl;
-    //std::cout << std::endl << graph->getNoVertices();
-    //est_result[0].print();
-    //est_result[1].print();
-    //est_result[2].print();
-    //est_result[3].print();
+    for (int noLabels = 0; noLabels < graph->getNoLabels(); noLabels++) {
+        uint32_t helper = (uint32_t)(((float)(est_result[noLabels].noPaths) / (float)(graph->getNoEdges())) * graph->getNoVertices());
+        est_result[noLabels].noOut = helper;
+        est_result[noLabels].noIn = helper;
+    }
 
 }
 
@@ -124,15 +120,14 @@ cardStat SimpleEstimator::estimate(RPQTree *q) {
         }
 
         //float result = leftGraph.noPaths * (leftGraph.noIn * (float(rightGraph.noOut) / (float)(graph->getNoVertices())) * ((float)(rightGraph.noPaths) / (float)(rightGraph.noOut)));
-        float result1 = (float)(leftGraph.noPaths * rightGraph.noPaths) / (float)(leftGraph.noOut);
-        float result2 = (float)(leftGraph.noPaths * rightGraph.noPaths) / (float)(rightGraph.noOut);
-        uint32_t final_result = std::min((int)(result1), (int)(result2));
 
-        //std::cout << std::endl << "Result: " << final_result;
-        //std::cout << std::endl << "Left graph: " << leftGraph.noOut << "; " << leftGraph.noPaths << "; " << leftGraph.noIn;
-        //std::cout << std::endl << "Right graph: " << rightGraph.noOut << "; " << rightGraph.noPaths << "; " << rightGraph.noIn;
+        //float result1 = (float)(leftGraph.noPaths * rightGraph.noPaths) / (float)(leftGraph.noOut);
+        //float result2 = (float)(leftGraph.noPaths * rightGraph.noPaths) / (float)(rightGraph.noOut);
+        //uint32_t final_result = std::min((int)(result1), (int)(result2));
+        uint32_t result1 = (leftGraph.noPaths * rightGraph.noPaths) / leftGraph.noOut;
+        uint32_t result2 = (leftGraph.noPaths * rightGraph.noPaths) / rightGraph.noOut;
 
-        return cardStat {std::min(leftGraph.noOut, rightGraph.noOut), final_result,
+        return cardStat {std::min(leftGraph.noOut, rightGraph.noOut), std::min(result1, result2),
                          std::min(leftGraph.noIn, rightGraph.noIn)};
     }
 
