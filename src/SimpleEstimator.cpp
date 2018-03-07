@@ -8,6 +8,8 @@
 #include <map>
 
 std::map<uint32_t , cardStat> est_result;
+std::regex directLabel (R"((\d+)\+)");
+std::regex inverseLabel (R"((\d+)\-)");
 
 SimpleEstimator::SimpleEstimator(std::shared_ptr<SimpleGraph> &g){
 
@@ -84,8 +86,6 @@ cardStat SimpleEstimator::estimate(RPQTree *q) {
     // perform your estimation here
 
     // project out the label in the AST
-    std::regex directLabel (R"((\d+)\+)");
-    std::regex inverseLabel (R"((\d+)\-)");
 
     std::smatch matches;
 
