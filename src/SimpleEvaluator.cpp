@@ -17,6 +17,10 @@ void SimpleEvaluator::prepare() {
 
 }
 
+// project out the label in the AST
+std::regex directLabel (R"((\d+)\+)");
+std::regex inverseLabel (R"((\d+)\-)");
+
 cardStat SimpleEvaluator::computeStats(std::shared_ptr<SimpleGraph> &g) {
 
     cardStat stats {};
@@ -95,9 +99,6 @@ std::shared_ptr<SimpleGraph> SimpleEvaluator::evaluate_aux(RPQTree *q) {
     // evaluate according to the AST bottom-up
 
     if(q->isLeaf()) {
-        // project out the label in the AST
-        std::regex directLabel (R"((\d+)\+)");
-        std::regex inverseLabel (R"((\d+)\-)");
 
         std::smatch matches;
 
